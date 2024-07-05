@@ -27,7 +27,9 @@ defmodule Pigeon do
 
   alias Pigeon.Tasks
 
-  @default_timeout 5_000
+  require Logger
+
+  @default_timeout 10_000
 
   @typedoc ~S"""
   Async callback for push notifications response.
@@ -120,12 +122,20 @@ defmodule Pigeon do
     on_response = fn x -> send(myself, {:"$push", ref, x}) end
     notification = put_on_response(notification, on_response)
 
+    myself
+    |> inspect
+    |> Logger.info
+
     push_async(pid, notification)
 
     receive do
-      {:"$push", ^ref, x} -> x
+      {:"$push", ^ref, x} ->
+        Logger.info("[Pigeon] x factor: #{inspect(x)}")
+        x
     after
-      timeout -> %{notification | response: :timeout}
+      timeout ->
+        Logger.info("[Pigeon] timeout")
+        %{notification | response: :timeout}
     end
   end
 

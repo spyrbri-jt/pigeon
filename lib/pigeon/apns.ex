@@ -157,6 +157,8 @@ defmodule Pigeon.APNS do
 
   @behaviour Pigeon.Adapter
 
+  require Logger
+
   alias Pigeon.{Configurable, NotificationQueue}
   alias Pigeon.APNS.ConfigParser
   alias Pigeon.Http2.{Client, Stream}

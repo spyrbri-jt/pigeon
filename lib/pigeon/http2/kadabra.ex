@@ -3,6 +3,8 @@ defmodule Pigeon.Http2.Client.Kadabra do
 
   @behaviour Pigeon.Http2.Client
 
+  require Logger
+
   def start do
     Application.ensure_all_started(:kadabra)
   end
@@ -13,6 +15,7 @@ defmodule Pigeon.Http2.Client.Kadabra do
   end
 
   def send_request(pid, headers, data) do
+    Logger.info "[Kadabra] Sending request #{inspect(pid)}, body: #{inspect(data)}"
     Kadabra.request(pid, headers: headers, body: data)
   end
 
@@ -26,6 +29,7 @@ defmodule Pigeon.Http2.Client.Kadabra do
       :ok
   """
   def send_ping(pid) do
+    Logger.info "[Kadabra] Sending ping #{inspect(pid)}"
     Kadabra.ping(pid)
   end
 
@@ -43,6 +47,7 @@ defmodule Pigeon.Http2.Client.Kadabra do
   end
 
   def handle_end_stream(msg, _state) do
+    Logger.info "[Kadabra] handle end stream #{inspect(msg)}"
     msg
   end
 end
