@@ -157,6 +157,8 @@ defmodule Pigeon.APNS do
 
   @behaviour Pigeon.Adapter
 
+  require Logger
+
   alias Pigeon.{Configurable, NotificationQueue}
   alias Pigeon.APNS.ConfigParser
   alias Pigeon.Http2.{Client, Stream}
@@ -170,11 +172,12 @@ defmodule Pigeon.APNS do
 
     case connect_socket(config) do
       {:ok, socket} ->
-        Configurable.schedule_ping(config)
-        {:ok, %{state | socket: socket}}
+        Logger.info("successfully connected")
+        {:ok, socket}
 
       {:error, reason} ->
-        {:stop, reason}
+        Logger.error("Error connecting: #{inspect(reason)}")
+        connect_socket(config, tries + 1)
     end
   end
 
