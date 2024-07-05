@@ -29,7 +29,7 @@ defmodule Pigeon do
 
   require Logger
 
-  @default_timeout 10_000
+  @default_timeout 5_000
 
   @typedoc ~S"""
   Async callback for push notifications response.
