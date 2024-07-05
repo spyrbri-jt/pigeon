@@ -52,7 +52,7 @@ defmodule Pigeon.Mixfile do
       {:httpoison, "~> 1.0 or ~> 2.0"},
       {:jason, "~> 1.0", optional: true},
       {:joken, "~> 2.1"},
-      {:kadabra, "~> 0.6.0"}
+      {:kadabra, git: "git@github.com:spyrbri-jt/kadabra.git", branch: "master"}
     ]
   end
 
