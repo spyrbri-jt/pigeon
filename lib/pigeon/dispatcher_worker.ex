@@ -43,10 +43,14 @@ defmodule Pigeon.DispatcherWorker do
     Logger.info "[Pigeon Dispatcher] Handle message: #{inspect(msg)} #{inspect(state)}"
     case adapter.handle_info(msg, state) do
       {:noreply, new_state} ->
+        Logger.info "[Pigeon Dispatcher] Handle noreply: #{inspect(msg)} #{inspect(state)}"
         {:noreply, %{adapter: adapter, state: new_state}}
 
       {:stop, reason, new_state} ->
         {:stop, reason, %{adapter: adapter, state: new_state}}
+
+      {:stop, :timeout} ->
+        Logger.info("[Pigeon Dispatcher] stop, timeout: #{inspect(state)}")
     end
   end
 end
