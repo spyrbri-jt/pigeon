@@ -18,9 +18,11 @@ defmodule Pigeon.DispatcherWorker do
         {:ok, %{adapter: opts[:adapter], state: state}}
 
       {:error, reason} ->
+        Logger.info("[Pigeon Dispatcher] Init fail #{reason}")
         {:error, reason}
 
       {:stop, reason} ->
+        Logger.info("[Pigeon Dispatcher] Init stop #{reason}")
         {:stop, reason}
     end
   end
@@ -36,6 +38,9 @@ defmodule Pigeon.DispatcherWorker do
       {:stop, reason, new_state} ->
         Logger.info "[Pigeon Dispatcher] stop #{inspect(reason)}"
         {:stop, reason, %{adapter: adapter, state: new_state}}
+
+      something ->
+        Logger.info "[Pigeon Dispatcher] something #{inspect(something)}"
     end
   end
 

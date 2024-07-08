@@ -16,6 +16,7 @@ defmodule Pigeon.Http2.Client.Kadabra do
 
   def send_request(pid, headers, data) do
     Logger.info "[Kadabra] Sending request #{inspect(pid)}, body: #{inspect(data)}"
+    Logger.info "[Kadabra] Process alive? #{Process.alive?(pid)}"
     Kadabra.request(pid, headers: headers, body: data)
   end
 

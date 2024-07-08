@@ -88,7 +88,7 @@ defmodule Pigeon.APNS do
   ```
   n = Pigeon.APNS.Notification.new("your message", "your device token", "your push topic")
   ```
-   
+
   5. Send the packet. Pushes are synchronous and return the notification with an
    updated `:response` key.
 
@@ -133,8 +133,8 @@ defmodule Pigeon.APNS do
   openssl pkcs12 -legacy -clcerts -nokeys -out cert.pem -in cert.p12
   ```
 
-  6. Convert the key. Be sure to set a PEM pass phrase here. The pass phrase must be 4 or 
-     more characters in length or this will not work. You will need that pass phrase added 
+  6. Convert the key. Be sure to set a PEM pass phrase here. The pass phrase must be 4 or
+     more characters in length or this will not work. You will need that pass phrase added
      here in order to remove it in the next step.
 
   ```
@@ -182,10 +182,13 @@ defmodule Pigeon.APNS do
 
   @impl true
   def handle_push(notification, %{config: config, queue: queue} = state) do
+    Logger.info("[Pigeon APNS] Handle push")
     headers = Configurable.push_headers(config, notification, [])
     payload = Configurable.push_payload(config, notification, [])
 
-    Client.default().send_request(state.socket, headers, payload)
+    response = Client.default().send_request(state.socket, headers, payload)
+    Logger.info("[Pigeon APNS] Handle push send request #{response}")
+
 
     new_q = NotificationQueue.add(queue, state.stream_id, notification)
 
@@ -193,6 +196,8 @@ defmodule Pigeon.APNS do
       state
       |> inc_stream_id()
       |> Map.put(:queue, new_q)
+
+    Logger.info("[APNS] Handle push #{inspect(state)}")
 
     {:noreply, state}
   end
@@ -205,6 +210,7 @@ defmodule Pigeon.APNS do
   end
 
   def handle_info({:closed, _}, %{config: config} = state) do
+    Logger.info("[Pigeon APNS] closed")
     case connect_socket(config) do
       {:ok, socket} ->
         Configurable.schedule_ping(config)
@@ -217,6 +223,7 @@ defmodule Pigeon.APNS do
         {:noreply, state}
 
       {:error, reason} ->
+        Logger.info("[Pigeon APNS] closed error: #{inspect(reason)}")
         {:stop, reason}
     end
   end
@@ -225,7 +232,9 @@ defmodule Pigeon.APNS do
   def handle_info(msg, state) do
     case Client.default().handle_end_stream(msg, state) do
       {:ok, %Stream{} = stream} -> process_end_stream(stream, state)
-      _else -> {:noreply, state}
+      something ->
+        Logger.info("[Pigeon APNS] handle info: #{inspect(something)}")
+        {:noreply, state}
     end
   end
 
@@ -236,11 +245,11 @@ defmodule Pigeon.APNS do
   defp connect_socket(config, tries) do
     case Configurable.connect(config) do
       {:ok, socket} ->
-        Logger.info("successfully connected")
+        Logger.info("[Pigeon APNS] successfully connected")
         {:ok, socket}
 
       {:error, reason} ->
-        Logger.error("Error connecting: #{inspect(reason)}")
+        Logger.error("[Pigeon APNS] Error connecting: #{inspect(reason)}")
         connect_socket(config, tries + 1)
     end
   end
