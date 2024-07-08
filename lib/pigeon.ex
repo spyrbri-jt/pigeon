@@ -134,7 +134,7 @@ defmodule Pigeon do
         x
     after
       timeout ->
-        Logger.info("[Pigeon] timeout")
+        Logger.info("[Pigeon] error: #{timeout}")
         %{notification | response: :timeout}
     end
   end
